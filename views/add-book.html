@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/Css//styles.css"> 
+    <title>Agregar Libro</title>
+</head>
+<body>
+    <h1>Agregar Nuevo Libro</h1>
+    <form id="addBookForm">
+        <label for="title">Título:</label>
+        <input type="text" id="title" name="title" required>
+        
+        <label for="description">Descripción:</label>
+        <textarea id="description" name="description" required></textarea>
+        
+        <label for="stock">Stock:</label>
+        <input type="number" id="stock" name="stock" required>
+        
+        <label for="saleprice">Precio de Venta:</label>
+        <input type="number" id="saleprice" name="saleprice" required>
+        
+        <label for="available">Disponible:</label>
+        <select id="available" name="available" required>
+            <option value="1">Sí</option>
+            <option value="0">No</option>
+        </select>
+
+        <button type="submit">Agregar Libro</button>
+
+        <button  id="back" onclick="window.location.href='http://127.0.0.1:5500/views/index.html'">Regresar a lista de libros</button>
+    </form>
+
+    <script>
+        document.getElementById('addBookForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            fetch('http://localhost:8000/add-book', { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la red');
+                }
+                return response.json();
+            })
+            .then(result => {
+                if (result.success) {
+                    alert('Libro agregado con éxito');
+                    fetchBooks(); 
+                    
+                } else {
+                    alert('Error al agregar el libro');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <title>Editar Libro</title>
+</head>
+<body>
+    <h1>Editar Libro</h1>
+    <form id="editBookForm">
+        <input type="hidden" id="bookid" name="bookid" />
+
+        <label for="title">Título:</label>
+        <input type="text" id="title" name="title" required />
+
+        <label for="description">Descripción:</label>
+        <textarea id="description" name="description" required></textarea>
+
+        <label for="stock">Stock:</label>
+        <input type="number" id="stock" name="stock" required />
+
+        <label for="saleprice">Precio de Venta:</label>
+        <input type="number" id="saleprice" name="saleprice" required />
+
+        <label for="available">Disponible:</label>
+        <select id="available" name="available" required>
+            <option value="1">Sí</option>
+            <option value="0">No</option>
+        </select>
+
+        <button type="submit">Actualizar Libro</button>
+    </form>
+
+    <script>
+    
+const urlParams = new URLSearchParams(window.location.search);
+const bookid = urlParams.get('id'); 
+
+
+       
+        fetch(`http://localhost:8000/edit-book/${bookid}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la red');
+                }
+                return response.json(); 
+            })
+            .then(book => {
+                document.getElementById('bookid').value = book.bookid;
+                document.getElementById('title').value = book.title;
+                document.getElementById('description').value = book.description;
+                document.getElementById('stock').value = book.stock;
+                document.getElementById('saleprice').value = book.saleprice;
+                document.getElementById('available').value = book.available;
+            })
+            .catch(error => console.error('Error al cargar el libro:', error));
+
+       
+        document.getElementById("editBookForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            fetch(`http://localhost:8000/edit-book/${data.bookid}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Error al actualizar el libro");
+                }
+                return response.json(); 
+            })
+            .then(result => {
+                console.log(result); 
+                alert("Libro actualizado con éxito");
+                fetchBooks(); 
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>

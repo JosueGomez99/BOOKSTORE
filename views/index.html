@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/styles.css" />
+    
+    <title>Lista de Libros</title>
+  </head>
+  <body>
+    <h1>Lista de Libros</h1>
+    <button
+      onclick="window.location.href='http://127.0.0.1:5500/views/add-book.html'"
+    >
+      Agregar Nuevo Libro
+    </button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Título</th>
+          <th>Descripción</th>
+          <th>Stock</th>
+          <th>Precio de Venta</th>
+          <th>Disponible</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="bookList"></tbody>
+
+    </table>
+
+    <script>
+      
+      function fetchBooks() {
+        fetch("http://localhost:8000/") 
+          .then((response) => response.json())
+          .then((books) => {
+            const bookList = document.getElementById("bookList");
+            bookList.innerHTML = ""; 
+            books.forEach((book) => {
+              const tr = document.createElement("tr");
+              tr.innerHTML = `
+                            <td>${book.title}</td>
+                            <td>${book.description}</td>
+                            <td>${book.stock}</td>
+                            <td>${book.saleprice}</td>
+                            <td>${book.available ? "Sí" : "No"}</td>
+                            <td>
+                                <button onclick="editBook(${
+                                  book.bookid
+                                })">Editar</button>
+                                <button onclick="deleteBook(${
+                                  book.bookid
+                                })">Eliminar</button>
+                            </td>
+                        `;
+              bookList.appendChild(tr);
+            });
+          })
+          .catch((error) =>
+            console.error("Error al obtener los libros:", error)
+          );
+      }
+
+      
+      function editBook(bookid) {
+        window.location.href = `http://127.0.0.1:5500/views/edit-book.html?id=${bookid}`; 
+      }
+
+    
+      function deleteBook(bookid) {
+        if (confirm("¿Estás seguro de que quieres eliminar este libro?")) {
+          fetch(`http://localhost:8000/delete-book/${bookid}`, {
+            method: "GET", 
+          })
+            .then(() => {
+              alert("Libro eliminado con éxito");
+              fetchBooks(); 
+            })
+            .catch((error) =>
+              console.error("Error al eliminar el libro:", error)
+            );
+        }
+      }
+
+      
+      window.onload = fetchBooks;
+    </script>
+  </body>
+</html>
